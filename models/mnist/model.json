@@ -1,0 +1,77 @@
+{
+  "name": "MNIST (dígitos manuscritos)",
+  "description": "CNN INT8 treinada no MNIST: dígitos 0-9 escritos à mão.",
+  "classes": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+  ],
+  "input": {
+    "h": 28,
+    "w": 28,
+    "c": 1,
+    "scale": 0.00392156862745098,
+    "zero_point": -128
+  },
+  "preprocess": "mnist",
+  "clock_hz": 50000000,
+  "samples": [
+    {
+      "name": "0 (img_00_label0.bin)",
+      "file": "samples/img_00_label0.bin",
+      "label": 0
+    },
+    {
+      "name": "1 (img_01_label1.bin)",
+      "file": "samples/img_01_label1.bin",
+      "label": 1
+    },
+    {
+      "name": "2 (img_02_label2.bin)",
+      "file": "samples/img_02_label2.bin",
+      "label": 2
+    },
+    {
+      "name": "3 (img_03_label3.bin)",
+      "file": "samples/img_03_label3.bin",
+      "label": 3
+    },
+    {
+      "name": "4 (img_04_label4.bin)",
+      "file": "samples/img_04_label4.bin",
+      "label": 4
+    },
+    {
+      "name": "5 (img_05_label5.bin)",
+      "file": "samples/img_05_label5.bin",
+      "label": 5
+    },
+    {
+      "name": "6 (img_06_label6.bin)",
+      "file": "samples/img_06_label6.bin",
+      "label": 6
+    },
+    {
+      "name": "7 (img_07_label7.bin)",
+      "file": "samples/img_07_label7.bin",
+      "label": 7
+    },
+    {
+      "name": "8 (img_08_label8.bin)",
+      "file": "samples/img_08_label8.bin",
+      "label": 8
+    },
+    {
+      "name": "9 (img_09_label9.bin)",
+      "file": "samples/img_09_label9.bin",
+      "label": 9
+    }
+  ]
+}

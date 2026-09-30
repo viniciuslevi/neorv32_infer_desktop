@@ -1,0 +1,77 @@
+{
+  "name": "Fashion-MNIST (roupas)",
+  "description": "CNN INT8 treinada no Fashion-MNIST: 10 tipos de roupa e calçado.",
+  "classes": [
+    "Camiseta",
+    "Calça",
+    "Pulôver",
+    "Vestido",
+    "Casaco",
+    "Sandália",
+    "Camisa",
+    "Tênis",
+    "Bolsa",
+    "Bota"
+  ],
+  "input": {
+    "h": 28,
+    "w": 28,
+    "c": 1,
+    "scale": 0.00392156862745098,
+    "zero_point": -128
+  },
+  "preprocess": "fill",
+  "clock_hz": 50000000,
+  "samples": [
+    {
+      "name": "Camiseta (img_00_tshirt.bin)",
+      "file": "samples/img_00_tshirt.bin",
+      "label": 0
+    },
+    {
+      "name": "Calça (img_01_trouser.bin)",
+      "file": "samples/img_01_trouser.bin",
+      "label": 1
+    },
+    {
+      "name": "Pulôver (img_02_pullover.bin)",
+      "file": "samples/img_02_pullover.bin",
+      "label": 2
+    },
+    {
+      "name": "Vestido (img_03_dress.bin)",
+      "file": "samples/img_03_dress.bin",
+      "label": 3
+    },
+    {
+      "name": "Casaco (img_04_coat.bin)",
+      "file": "samples/img_04_coat.bin",
+      "label": 4
+    },
+    {
+      "name": "Sandália (img_05_sandal.bin)",
+      "file": "samples/img_05_sandal.bin",
+      "label": 5
+    },
+    {
+      "name": "Camisa (img_06_shirt.bin)",
+      "file": "samples/img_06_shirt.bin",
+      "label": 6
+    },
+    {
+      "name": "Tênis (img_07_sneaker.bin)",
+      "file": "samples/img_07_sneaker.bin",
+      "label": 7
+    },
+    {
+      "name": "Bolsa (img_08_bag.bin)",
+      "file": "samples/img_08_bag.bin",
+      "label": 8
+    },
+    {
+      "name": "Bota (img_09_ankle_boot.bin)",
+      "file": "samples/img_09_ankle_boot.bin",
+      "label": 9
+    }
+  ]
+}
