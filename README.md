@@ -112,3 +112,7 @@ novo, passe `--classes a,b,c,...` e `--preprocess` (`mnist`: dígito centrado em
 - `imaging.py`: conversão de imagens para o tensor INT8
 - `packages.py`: leitura dos pacotes em `models/`
 - `make_package.py`: gera pacotes
+
+## Licença
+
+BSD-3-Clause (ver `LICENSE`), a mesma do NEORV32.
