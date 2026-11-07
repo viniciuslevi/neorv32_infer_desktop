@@ -4,7 +4,7 @@ Gera um pacote de modelo em models/<id>/ a partir da saida de
 build_mnist_int8.py (repositorio inference_tcc, pasta out/<dataset>/).
 
 O firmware e compilado aqui, numa copia temporaria de
-<neorv32>/sw/example/neorv32_mnist_infer com o model_meta.h do modelo -- a
+<neorv32>/sw/tcc/mnist_infer com o model_meta.h do modelo -- a
 arvore de trabalho do repositorio neorv32 nao e tocada. Requer
 riscv-none-elf-gcc e make no PATH (os mesmos do "make exe" do firmware).
 
@@ -26,7 +26,7 @@ import tempfile
 
 import packages
 
-FIRMWARE_SUBDIR = os.path.join("sw", "example", "neorv32_mnist_infer")
+FIRMWARE_SUBDIR = os.path.join("sw", "tcc", "mnist_infer")
 
 # Padroes para os datasets conhecidos; qualquer campo pode ser sobrescrito na linha de comando
 KNOWN = {

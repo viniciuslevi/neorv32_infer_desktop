@@ -4,10 +4,10 @@ Comunicacao com a placa DE2-115 (NEORV32 + acelerador sistolico) pela UART.
 Duas fases, dois baud rates:
   1. Bootloader do NEORV32 (19200, fixo em sw/bootloader/config.h): grava o
      firmware do modelo (neorv32_exe.bin) -- mesmo protocolo de
-     sw/image_gen/uart_upload.py.
-  2. Firmware neorv32_mnist_infer (APP_UART_BAUD = 115200 em main.c): recebe
+     sw/tcc/tools/uart_upload.py.
+  2. Firmware sw/tcc/mnist_infer (APP_UART_BAUD = 115200 em main.c): recebe
      pesos e imagem e roda a inferencia -- mesmo protocolo de
-     sw/example/neorv32_mnist_infer/tools/send_weights.py.
+     sw/tcc/mnist_infer/tools/send_weights.py.
 
 Diferenca importante em relacao ao send_weights.py: o 'R' de "pronto" so e
 aceito DEPOIS de o firmware anunciar que entrou no handshake. Antes disso ele
@@ -46,6 +46,14 @@ MARK_BLOB_DONE = b"[sdram] "
 RE_CLASS = re.compile(rb">>> Classe prevista: (-?\d+) <<<")
 RE_LOGITS = re.compile(rb"\[logits\] ((?:-?\d+ ?)+)")
 RE_BENCH = re.compile(rb"\[bench\] (\w+)\s*: (\d+) ciclos")
+# Comando 'S' (coleta do TCC): a mesma inferencia repetida so na CPU
+RE_BENCH_SW = re.compile(rb"\[bench-sw\] (\w+)\s*: (\d+) ciclos")
+RE_LOGITS_SW = re.compile(rb"\[logits-sw\] ((?:-?\d+ ?)+)")
+RE_TOTAL = re.compile(rb"\[total\] (\d+) ciclos")
+RE_TOTAL_SW = re.compile(rb"\[total-sw\] (\d+) ciclos")
+RE_FAULTS = re.compile(rb"\[faults ate aqui: (\d+)\]")
+RE_GIVEUPS = re.compile(rb"\[faults desistidos: (\d+)\]")
+MARK_BATCH_END = b"[fim]"
 
 
 class BoardError(Exception):
@@ -221,23 +229,43 @@ class Board:
         self.send_blob(b"W", weights, progress)
         self.wait_handshake(30, marker=MARK_BLOB_DONE)
 
-    def run(self, image: bytes, timeout_s=120):
-        """Envia a imagem e 'G'; devolve dict com classe, logits e ciclos por camada.
+    def run(self, image: bytes, timeout_s=120, cmd=b"G"):
+        """Envia a imagem e o comando; devolve dict com classe, logits e ciclos por camada.
 
-        Pressupoe a placa no handshake. Ao final o firmware fica esperando KEY1
-        antes de voltar ao handshake."""
+        Pressupoe a placa no handshake. Com 'G' o firmware fica esperando KEY1
+        antes de voltar ao handshake. 'H' e 'S' (coleta em lote) voltam direto,
+        depois de imprimir "[fim]"; 'S' tambem repete a inferencia so na CPU e
+        preenche as chaves "*_sw"."""
         self.log("\n[app] Enviando imagem...\n")
         self.send_blob(b"I", image)
         self.wait_handshake(30, marker=MARK_BLOB_DONE)
-        self.ser.write(b"G")
-        buf = self._read_until(RE_CLASS, timeout_s)
-        m = RE_CLASS.search(buf)
-        if b"\n" not in buf[m.end():]:
-            buf += self._read_until(b"\n", 2)  # termina a linha (o log fica completo)
+        self.ser.write(cmd)
+        if cmd == b"G":
+            buf = self._read_until(RE_CLASS, timeout_s)
+            m = RE_CLASS.search(buf)
+            if b"\n" not in buf[m.end():]:
+                buf += self._read_until(b"\n", 2)  # termina a linha (o log fica completo)
+        else:
+            buf = self._read_until(MARK_BATCH_END, timeout_s)
 
-        logits = RE_LOGITS.search(buf)
+        def ints(regex):
+            m = regex.search(buf)
+            return [int(v) for v in m.group(1).split()] if m else None
+
+        def one(regex):
+            m = regex.search(buf)
+            return int(m.group(1)) if m else None
+
         return {
             "class": int(RE_CLASS.search(buf).group(1)),
-            "logits": [int(v) for v in logits.group(1).split()] if logits else None,
+            "logits": ints(RE_LOGITS),
             "cycles": {m.group(1).decode(): int(m.group(2)) for m in RE_BENCH.finditer(buf)},
+            "total": one(RE_TOTAL),
+            "faults": one(RE_FAULTS),
+            # ultima ocorrencia: no modo 'S' inclui as desistencias da execucao so em software
+            "giveups": int(RE_GIVEUPS.findall(buf)[-1]) if RE_GIVEUPS.search(buf) else None,
+            "logits_sw": ints(RE_LOGITS_SW),
+            "cycles_sw": {m.group(1).decode(): int(m.group(2)) for m in RE_BENCH_SW.finditer(buf)},
+            "total_sw": one(RE_TOTAL_SW),
+            "log": buf.decode(errors="replace"),
         }
