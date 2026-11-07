@@ -52,7 +52,8 @@ Feche o app antes de usar a coleta em lote: ele mantém a porta serial aberta.
 
 ## Coleta em lote (`eval_batch.py`)
 
-Envia as N primeiras imagens do conjunto de teste à placa e grava, por imagem, a
+Envia N imagens do conjunto de teste à placa (as N primeiras, ou N sorteadas com
+`--seed`) e grava, por imagem, a
 classe, os logits, os ciclos de cada camada e o contador de falhas da SDRAM, e
 compara tudo com a simulação bit-exata do firmware feita no host (a partir do
 `weights.bin` e do `model_meta.h` do pacote). Usa o comando `H` do firmware

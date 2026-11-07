@@ -110,8 +110,11 @@ def main():
     ap.add_argument("--port", required=True)
     ap.add_argument("--model", required=True, help="pasta do pacote (ex.: models/mnist)")
     ap.add_argument("--data", required=True, help="pasta com t10k-*-idx*-ubyte.gz")
-    ap.add_argument("--n", type=int, default=100, help="quantas imagens (as N primeiras do teste)")
+    ap.add_argument("--n", type=int, default=100, help="quantas imagens (as N primeiras do teste, ou N sorteadas com --seed)")
     ap.add_argument("--start", type=int, default=0, help="indice da primeira imagem")
+    ap.add_argument("--seed", type=int, default=None,
+                    help="sorteia N imagens do teste inteiro com esta semente (em ordem crescente "
+                         "de indice), em vez de pegar as N primeiras a partir de --start")
     ap.add_argument("--sw-every", type=int, default=0,
                     help="a cada K imagens usa 'S' (tambem so em software); 0 = nunca")
     ap.add_argument("--load", action="store_true", help="grava firmware e pesos antes (pede KEY0)")
@@ -121,7 +124,11 @@ def main():
     pkg = load_package(os.path.abspath(args.model))
     layers = load_reference_layers(os.path.join(pkg.dir, "model_meta.h"), pkg.weights_path)
     x_test, y_test = load_test_set(args.data)
-    idxs = range(args.start, min(args.start + args.n, len(x_test)))
+    if args.seed is None:
+        idxs = range(args.start, min(args.start + args.n, len(x_test)))
+    else:
+        rng = np.random.default_rng(args.seed)
+        idxs = sorted(int(i) for i in rng.choice(len(x_test), size=args.n, replace=False))
 
     log_f = open(os.path.splitext(args.out)[0] + ".log", "w", encoding="utf-8")
 
